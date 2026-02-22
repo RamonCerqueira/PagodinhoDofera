@@ -1,6 +1,6 @@
 # Pagodinho do Fera
 
-Landing page de alta conversão para contratação via WhatsApp com admin de agenda em Firebase, integração com Instagram oficial e pacote de fechamento para operação real.
+Landing page de alta conversão para contratação via WhatsApp com admin de agenda em Firebase, integração com Instagram oficial, Reel em destaque e pacote de fechamento para operação real.
 
 ## Stack
 - Next.js 14 + TypeScript
@@ -24,3 +24,8 @@ Landing page de alta conversão para contratação via WhatsApp com admin de age
 ## Rotas
 - `/` site principal
 - `/admin` painel CRUD de eventos com login
+
+
+## Conteúdo visual
+- Logomarca usada em `public/logo-pagodinho.svg`
+- Reel destacado: `https://www.instagram.com/pagodinhodofera/reel/DQvKG0-EeIX/`

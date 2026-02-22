@@ -7,3 +7,5 @@ export const INSTAGRAM_EMBED_CODES = (process.env.NEXT_PUBLIC_INSTAGRAM_EMBEDS ?
   .split(',')
   .map((item) => item.trim())
   .filter(Boolean);
+
+export const INSTAGRAM_REEL_URL = 'https://www.instagram.com/reel/DQvKG0-EeIX/embed';

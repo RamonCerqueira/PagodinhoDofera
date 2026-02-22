@@ -1,10 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import { EventItem } from '@/lib/getEvents';
 import { fallbackEvents, testimonials } from './data';
-import { INSTAGRAM_EMBED_CODES, INSTAGRAM_PROFILE_URL, WHATSAPP_URL } from '@/lib/constants';
+import { INSTAGRAM_EMBED_CODES, INSTAGRAM_PROFILE_URL, INSTAGRAM_REEL_URL, WHATSAPP_URL } from '@/lib/constants';
 
 function formatCountdown(targetDate: string) {
   const diff = new Date(targetDate).getTime() - Date.now();
@@ -26,7 +27,7 @@ export function Hero() {
       </video>
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-ember/60" />
       <motion.div initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 max-w-3xl px-6">
-        <p className="mb-2 text-neon">PAGODINHO DO FERA</p>
+        <Image src="/logo-pagodinho.svg" alt="Logomarca Pagodinho do Fera" width={280} height={120} className="mx-auto mb-4 h-20 w-auto" priority />
         <h1 className="mb-4 text-5xl font-bold uppercase md:text-7xl" style={{ fontFamily: 'var(--font-title)' }}>
           O pagode que transforma qualquer evento em festa.
         </h1>
@@ -110,6 +111,26 @@ export function VideoSection() {
         <iframe className="h-full w-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="show" allowFullScreen />
       </div>
       <a href={WHATSAPP_URL} className="mt-6 inline-block rounded-full bg-neon px-8 py-3 font-bold text-black">Quero isso no meu evento</a>
+    </section>
+  );
+}
+
+
+
+export function ReelHighlightSection() {
+  return (
+    <section className="mx-auto max-w-5xl px-6 pb-20 text-center">
+      <h2 className="section-title">Reels em Destaque</h2>
+      <p className="mb-6 text-zinc-300">Esse vídeo é real do Instagram oficial e mostra a energia do show ao vivo.</p>
+      <div className="mx-auto max-w-[420px] overflow-hidden rounded-2xl border border-zinc-800 bg-black">
+        <iframe
+          title="Reel Pagodinho do Fera"
+          src={INSTAGRAM_REEL_URL}
+          className="h-[600px] w-full"
+          allow="encrypted-media"
+        />
+      </div>
+      <a href={WHATSAPP_URL} className="mt-6 inline-block rounded-full bg-neon px-8 py-3 font-bold text-black">Quero esse nível no meu evento</a>
     </section>
   );
 }

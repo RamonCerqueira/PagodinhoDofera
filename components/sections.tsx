@@ -1,12 +1,22 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { EventItem } from '@/lib/getEvents';
 import { fallbackEvents, testimonials } from './data';
+import { INSTAGRAM_EMBED_CODES, INSTAGRAM_PROFILE_URL, WHATSAPP_URL } from '@/lib/constants';
 
-const wa = 'https://wa.me/557192037869?text=Quero%20contratar%20o%20Pagodinho%20do%20Fera';
-const instaProfile = 'https://www.instagram.com/pagodinhodofera/';
+function formatCountdown(targetDate: string) {
+  const diff = new Date(targetDate).getTime() - Date.now();
+  if (Number.isNaN(diff) || diff <= 0) return 'Começou ou já aconteceu';
+
+  const totalMinutes = Math.floor(diff / 60000);
+  const days = Math.floor(totalMinutes / (60 * 24));
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+  const minutes = totalMinutes % 60;
+
+  return `${days}d ${hours}h ${minutes}m`;
+}
 
 export function Hero() {
   return (
@@ -22,7 +32,7 @@ export function Hero() {
         </h1>
         <p className="mb-8 text-lg">Energia ao vivo para eventos inesquecíveis.</p>
         <div className="flex flex-wrap justify-center gap-4">
-          <a className="rounded-full bg-green-500 px-7 py-3 font-bold text-black" href={wa}>Contratar Agora</a>
+          <a className="rounded-full bg-green-500 px-7 py-3 font-bold text-black" href={WHATSAPP_URL}>Contratar Agora</a>
           <a className="rounded-full border border-white px-7 py-3 font-semibold" href="#agenda">Ver Disponibilidade</a>
         </div>
       </motion.div>
@@ -66,6 +76,16 @@ export function WeekAvailability({ events }: { events?: EventItem[] }) {
 
 export function NextShow({ events }: { events?: EventItem[] }) {
   const highlight = useMemo(() => events?.find((e) => e.destaque) || events?.[0] || fallbackEvents[0], [events]);
+  const [countdown, setCountdown] = useState(() => formatCountdown(`${highlight.data}T${highlight.hora}:00`));
+
+  useEffect(() => {
+    setCountdown(formatCountdown(`${highlight.data}T${highlight.hora}:00`));
+    const timer = setInterval(() => {
+      setCountdown(formatCountdown(`${highlight.data}T${highlight.hora}:00`));
+    }, 60000);
+
+    return () => clearInterval(timer);
+  }, [highlight.data, highlight.hora]);
 
   return (
     <section className="mx-auto max-w-5xl px-6 pb-20">
@@ -75,7 +95,7 @@ export function NextShow({ events }: { events?: EventItem[] }) {
           <p className="text-neon">Próximo Show</p>
           <h3 className="text-4xl font-bold">{highlight.data}</h3>
           <p>{highlight.local} • {highlight.cidade}</p>
-          <p className="mt-4 inline-block rounded bg-ember px-3 py-1 text-sm">Contagem regressiva ativa</p>
+          <p className="mt-4 inline-block rounded bg-ember px-3 py-1 text-sm font-semibold">Faltam {countdown}</p>
         </div>
       </div>
     </section>
@@ -89,35 +109,48 @@ export function VideoSection() {
       <div className="aspect-video overflow-hidden rounded-2xl border border-zinc-800">
         <iframe className="h-full w-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="show" allowFullScreen />
       </div>
-      <a href={wa} className="mt-6 inline-block rounded-full bg-neon px-8 py-3 font-bold text-black">Quero isso no meu evento</a>
+      <a href={WHATSAPP_URL} className="mt-6 inline-block rounded-full bg-neon px-8 py-3 font-bold text-black">Quero isso no meu evento</a>
     </section>
   );
 }
 
 export function InstagramSection() {
-  const cards = [
-    'Bastidores com público cantando junto',
-    'Trechos reais dos shows e energia no palco',
-    'Agenda atualizada e chamadas para novos eventos'
-  ];
+  const hasEmbeds = INSTAGRAM_EMBED_CODES.length > 0;
 
   return (
     <section id="instagram" className="mx-auto max-w-6xl px-6 pb-20">
       <h2 className="section-title">Instagram Oficial</h2>
-      <div className="grid gap-5 md:grid-cols-[1.2fr_2fr]">
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
-          <p className="text-sm text-zinc-400">Perfil oficial</p>
-          <p className="mt-2 text-2xl font-semibold text-neon">@pagodinhodofera</p>
-          <p className="mt-4 text-zinc-300">Integração direta com o perfil para gerar autoridade social e prova de atividade constante.</p>
-          <a href={instaProfile} target="_blank" rel="noreferrer" className="mt-6 inline-block rounded-full bg-neon px-6 py-3 font-bold text-black">
-            Ver Instagram
-          </a>
+      <div className="mb-5 rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+        <p className="text-sm text-zinc-400">Perfil oficial</p>
+        <p className="mt-2 text-2xl font-semibold text-neon">@pagodinhodofera</p>
+        <p className="mt-3 text-zinc-300">Feed real com os posts do artista. Sem conteúdo genérico.</p>
+        <a href={INSTAGRAM_PROFILE_URL} target="_blank" rel="noreferrer" className="mt-5 inline-block rounded-full bg-neon px-6 py-3 font-bold text-black">
+          Abrir perfil no Instagram
+        </a>
+      </div>
+
+      {hasEmbeds ? (
+        <div className="grid gap-5 md:grid-cols-3">
+          {INSTAGRAM_EMBED_CODES.map((code) => (
+            <iframe
+              key={code}
+              title={`Instagram ${code}`}
+              src={`https://www.instagram.com/p/${code}/embed`}
+              className="h-[440px] w-full rounded-xl border border-zinc-800 bg-black"
+              allow="encrypted-media"
+            />
+          ))}
         </div>
+      ) : (
         <div className="grid gap-3 md:grid-cols-3">
-          {cards.map((item) => (
+          {[
+            'Bastidores com público cantando junto',
+            'Trechos reais dos shows e energia no palco',
+            'Agenda atualizada e chamadas para novos eventos'
+          ].map((item) => (
             <a
               key={item}
-              href={instaProfile}
+              href={INSTAGRAM_PROFILE_URL}
               target="_blank"
               rel="noreferrer"
               className="rounded-xl border border-zinc-800 bg-gradient-to-br from-zinc-900 to-black p-4 transition hover:scale-[1.03] hover:border-neon"
@@ -127,7 +160,7 @@ export function InstagramSection() {
             </a>
           ))}
         </div>
-      </div>
+      )}
     </section>
   );
 }
@@ -195,14 +228,14 @@ export function FinalCta() {
       <h2 className="mb-6 text-4xl font-bold uppercase" style={{ fontFamily: 'var(--font-title)' }}>
         Sua data ainda está disponível?
       </h2>
-      <a href={wa} className="rounded-full bg-green-500 px-10 py-4 text-lg font-bold text-black">Fechar no WhatsApp</a>
+      <a href={WHATSAPP_URL} className="rounded-full bg-green-500 px-10 py-4 text-lg font-bold text-black">Fechar no WhatsApp</a>
     </section>
   );
 }
 
 export function FloatingWhatsApp() {
   return (
-    <a href={wa} className="fixed bottom-6 right-6 z-50 rounded-full bg-green-500 px-6 py-3 font-bold text-black shadow-xl">
+    <a href={WHATSAPP_URL} className="fixed bottom-6 right-6 z-50 rounded-full bg-green-500 px-6 py-3 font-bold text-black shadow-xl">
       WhatsApp
     </a>
   );

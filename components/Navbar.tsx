@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { WHATSAPP_URL } from '@/lib/constants';
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -27,7 +28,7 @@ export function Navbar() {
             </Link>
           ))}
         </div>
-        <a href="https://wa.me/5500000000000" className="rounded-full bg-neon px-5 py-2 text-sm font-bold text-black">Contratar</a>
+        <a href={WHATSAPP_URL} className="rounded-full bg-neon px-5 py-2 text-sm font-bold text-black">Contratar</a>
       </nav>
     </motion.header>
   );

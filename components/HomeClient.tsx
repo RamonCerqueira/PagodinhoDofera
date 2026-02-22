@@ -10,7 +10,6 @@ import {
   Hero,
   InstagramSection,
   NextShow,
-  ReelHighlightSection,
   Testimonials,
   VideoSection,
   WeekAvailability
@@ -33,7 +32,6 @@ export function HomeClient() {
       <WeekAvailability events={events} />
       <NextShow events={events} />
       <VideoSection />
-      <ReelHighlightSection />
       <InstagramSection />
       <EventTypes />
       <Testimonials />

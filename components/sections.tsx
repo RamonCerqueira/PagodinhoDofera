@@ -19,22 +19,50 @@ function formatCountdown(targetDate: string) {
   return `${days}d ${hours}h ${minutes}m`;
 }
 
+function getCurrentWeekMap(events: EventItem[]) {
+  const now = new Date();
+  const monday = new Date(now);
+  const day = (now.getDay() + 6) % 7;
+  monday.setDate(now.getDate() - day);
+  monday.setHours(0, 0, 0, 0);
+
+  const labels = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB', 'DOM'];
+
+  return labels.map((label, index) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + index);
+    const iso = date.toISOString().slice(0, 10);
+    const event = events.find((item) => item.data === iso);
+
+    return {
+      label,
+      date: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+      event
+    };
+  });
+}
+
 export function Hero() {
   return (
-    <section className="relative flex h-screen items-center justify-center overflow-hidden text-center">
+    <section className="relative flex h-screen items-center justify-center overflow-hidden text-center" id="top">
       <video autoPlay muted loop playsInline className="absolute inset-0 h-full w-full object-cover">
         <source src="https://cdn.coverr.co/videos/coverr-crowd-dancing-at-concert-1579/1080p.mp4" />
       </video>
       <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-ember/60" />
-      <motion.div initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 max-w-3xl px-6">
-        <Image src="/logo-pagodinho.svg" alt="Logomarca Pagodinho do Fera" width={280} height={120} className="mx-auto mb-4 h-20 w-auto" priority />
+      <motion.div initial={{ opacity: 0, y: 25 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 max-w-4xl px-6">
+        <Image src="/logo-pagodinho.svg" alt="Logomarca Pagodinho do Fera" width={300} height={130} className="mx-auto mb-4 h-20 w-auto md:h-24" priority />
         <h1 className="mb-4 text-5xl font-bold uppercase md:text-7xl" style={{ fontFamily: 'var(--font-title)' }}>
           O pagode que transforma qualquer evento em festa.
         </h1>
         <p className="mb-8 text-lg">Energia ao vivo para eventos inesquecíveis.</p>
-        <div className="flex flex-wrap justify-center gap-4">
+        <div className="mb-8 flex flex-wrap justify-center gap-4">
           <a className="rounded-full bg-green-500 px-7 py-3 font-bold text-black" href={WHATSAPP_URL}>Contratar Agora</a>
           <a className="rounded-full border border-white px-7 py-3 font-semibold" href="#agenda">Ver Disponibilidade</a>
+        </div>
+        <div className="mx-auto flex max-w-2xl flex-wrap justify-center gap-3 rounded-xl border border-white/20 bg-black/35 p-3 backdrop-blur-sm">
+          {['+50 eventos realizados', 'Show 100% ao vivo', 'Atendimento rápido no WhatsApp'].map((item) => (
+            <span key={item} className="rounded-full bg-white/10 px-3 py-1 text-xs uppercase tracking-wide text-zinc-200">{item}</span>
+          ))}
         </div>
       </motion.div>
     </section>
@@ -43,22 +71,22 @@ export function Hero() {
 
 export function WeekAvailability({ events }: { events?: EventItem[] }) {
   const base = events?.length ? events : fallbackEvents;
-  const days = ['SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB', 'DOM'];
+  const week = getCurrentWeekMap(base);
 
   return (
     <section id="agenda" className="mx-auto max-w-6xl px-6 py-20">
       <h2 className="section-title">📅 Essa Semana</h2>
       <div className="grid gap-3 md:grid-cols-7">
-        {days.map((day, i) => {
-          const event = base[i];
+        {week.map(({ label, date, event }) => {
           const active = !!event;
           return (
             <motion.div
               whileHover={{ scale: 1.03 }}
-              key={day}
+              key={label}
               className={`rounded-xl border p-4 ${active ? 'border-neon glow bg-zinc-900' : 'border-zinc-800 bg-zinc-950'}`}
             >
-              <p className="mb-2 text-neon">{day}</p>
+              <p className="text-neon">{label}</p>
+              <p className="mb-2 text-xs text-zinc-400">{date}</p>
               {active ? (
                 <>
                   <p className="font-semibold">{event.local}</p>
@@ -88,14 +116,19 @@ export function NextShow({ events }: { events?: EventItem[] }) {
     return () => clearInterval(timer);
   }, [highlight.data, highlight.hora]);
 
+  const formattedDate = new Date(`${highlight.data}T00:00:00`).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'long'
+  });
+
   return (
     <section className="mx-auto max-w-5xl px-6 pb-20">
       <div className="relative overflow-hidden rounded-2xl border border-zinc-700 bg-[url('https://images.unsplash.com/photo-1501386761578-eac5c94b800a')] bg-cover bg-center p-8">
         <div className="absolute inset-0 bg-black/70" />
         <div className="relative">
           <p className="text-neon">Próximo Show</p>
-          <h3 className="text-4xl font-bold">{highlight.data}</h3>
-          <p>{highlight.local} • {highlight.cidade}</p>
+          <h3 className="text-4xl font-bold capitalize">{formattedDate}</h3>
+          <p>{highlight.local} • {highlight.cidade} • {highlight.hora}</p>
           <p className="mt-4 inline-block rounded bg-ember px-3 py-1 text-sm font-semibold">Faltam {countdown}</p>
         </div>
       </div>
@@ -107,30 +140,23 @@ export function VideoSection() {
   return (
     <section id="videos" className="mx-auto max-w-5xl px-6 pb-20 text-center">
       <h2 className="section-title">Veja a energia ao vivo.</h2>
-      <div className="aspect-video overflow-hidden rounded-2xl border border-zinc-800">
-        <iframe className="h-full w-full" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="show" allowFullScreen />
+      <div className="mx-auto max-w-[420px] overflow-hidden rounded-2xl border border-zinc-800 bg-black">
+        <iframe title="Reel oficial" src={INSTAGRAM_REEL_URL} className="h-[600px] w-full" allow="encrypted-media" />
       </div>
       <a href={WHATSAPP_URL} className="mt-6 inline-block rounded-full bg-neon px-8 py-3 font-bold text-black">Quero isso no meu evento</a>
     </section>
   );
 }
 
-
-
 export function ReelHighlightSection() {
   return (
     <section className="mx-auto max-w-5xl px-6 pb-20 text-center">
-      <h2 className="section-title">Reels em Destaque</h2>
-      <p className="mb-6 text-zinc-300">Esse vídeo é real do Instagram oficial e mostra a energia do show ao vivo.</p>
-      <div className="mx-auto max-w-[420px] overflow-hidden rounded-2xl border border-zinc-800 bg-black">
-        <iframe
-          title="Reel Pagodinho do Fera"
-          src={INSTAGRAM_REEL_URL}
-          className="h-[600px] w-full"
-          allow="encrypted-media"
-        />
+      <h2 className="section-title">Momento de decisão</h2>
+      <p className="mx-auto mb-6 max-w-2xl text-zinc-300">Quando o público canta junto, o evento vira lembrança. Veja mais cortes no perfil oficial e fale com a produção.</p>
+      <div className="mx-auto max-w-2xl rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+        <p className="text-sm uppercase tracking-wider text-zinc-400">Conteúdo social ativo toda semana</p>
+        <a href={INSTAGRAM_PROFILE_URL} target="_blank" rel="noreferrer" className="mt-4 inline-block rounded-full bg-neon px-8 py-3 font-bold text-black">Ver Reels no Instagram</a>
       </div>
-      <a href={WHATSAPP_URL} className="mt-6 inline-block rounded-full bg-neon px-8 py-3 font-bold text-black">Quero esse nível no meu evento</a>
     </section>
   );
 }
@@ -198,10 +224,10 @@ export function EventTypes() {
       <h2 className="section-title">Tipos de Evento</h2>
       <div className="grid gap-5 md:grid-cols-3">
         {items.map(([icon, title, desc]) => (
-          <div key={title} className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+          <motion.div whileHover={{ scale: 1.03 }} key={title} className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
             <h3 className="mb-2 text-2xl">{icon} {title}</h3>
             <p className="text-zinc-300">{desc}</p>
-          </div>
+          </motion.div>
         ))}
       </div>
     </section>
@@ -214,11 +240,11 @@ export function Testimonials() {
       <h2 className="section-title">Depoimentos</h2>
       <div className="grid gap-5 md:grid-cols-3">
         {testimonials.map((t) => (
-          <div key={t.nome} className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
+          <motion.div whileHover={{ scale: 1.03 }} key={t.nome} className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
             <p className="mb-4 text-zinc-200">“{t.texto}”</p>
             <p className="font-semibold">{t.nome}</p>
             <p className="text-sm text-neon">{t.tipo}</p>
-          </div>
+          </motion.div>
         ))}
       </div>
     </section>
@@ -249,6 +275,7 @@ export function FinalCta() {
       <h2 className="mb-6 text-4xl font-bold uppercase" style={{ fontFamily: 'var(--font-title)' }}>
         Sua data ainda está disponível?
       </h2>
+      <p className="mb-6 text-zinc-300">Agenda limitada. Garanta o show agora e receba resposta rápida no WhatsApp.</p>
       <a href={WHATSAPP_URL} className="rounded-full bg-green-500 px-10 py-4 text-lg font-bold text-black">Fechar no WhatsApp</a>
     </section>
   );

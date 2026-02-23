@@ -9,3 +9,6 @@ export const INSTAGRAM_EMBED_CODES = (process.env.NEXT_PUBLIC_INSTAGRAM_EMBEDS ?
   .filter(Boolean);
 
 export const INSTAGRAM_REEL_URL = 'https://www.instagram.com/reel/DQvKG0-EeIX/embed';
+
+export const YOUTUBE_VIDEO_URL = 'https://www.youtube.com/embed/bjksC63eHvU?si=91sZp1aS9sFN5y3R';
+export const YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/@VALFERA';

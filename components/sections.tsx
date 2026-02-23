@@ -5,7 +5,13 @@ import Image from 'next/image';
 import { useEffect, useMemo, useState } from 'react';
 import { EventItem } from '@/lib/getEvents';
 import { fallbackEvents, testimonials } from './data';
-import { INSTAGRAM_EMBED_CODES, INSTAGRAM_PROFILE_URL, INSTAGRAM_REEL_URL, WHATSAPP_URL } from '@/lib/constants';
+import {
+  INSTAGRAM_EMBED_CODES,
+  INSTAGRAM_PROFILE_URL,
+  WHATSAPP_URL,
+  YOUTUBE_CHANNEL_URL,
+  YOUTUBE_VIDEO_URL
+} from '@/lib/constants';
 
 function formatCountdown(targetDate: string) {
   const diff = new Date(targetDate).getTime() - Date.now();
@@ -131,17 +137,29 @@ export function VideoSection() {
     <section id="videos" className="mx-auto max-w-6xl px-6 pb-20">
       <h2 className="section-title text-center">Veja a energia ao vivo.</h2>
       <div className="grid items-center gap-6 md:grid-cols-[1.1fr_1fr]">
-        <div className="mx-auto w-full max-w-[420px] overflow-hidden rounded-2xl border border-zinc-800 bg-black">
-          <iframe title="Reel oficial" src={INSTAGRAM_REEL_URL} className="h-[600px] w-full" allow="encrypted-media" />
+        <div className="mx-auto w-full overflow-hidden rounded-2xl border border-zinc-800 bg-black">
+          <div className="aspect-video">
+            <iframe
+              title="YouTube Pagodinho do Fera"
+              src={YOUTUBE_VIDEO_URL}
+              className="h-full w-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          </div>
         </div>
         <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
-          <h3 className="mb-4 text-2xl font-semibold">Momento de decisão</h3>
+          <h3 className="mb-4 text-2xl font-semibold">Canal oficial no YouTube</h3>
           <ul className="mb-6 space-y-2 text-zinc-300">
-            <li>• Público cantando junto do início ao fim</li>
-            <li>• Performance ao vivo com presença de palco</li>
-            <li>• Repertório ajustado para o seu tipo de evento</li>
+            <li>• Vídeos reais de shows e bastidores</li>
+            <li>• Prova social forte para fechar contrato</li>
+            <li>• Conteúdo atualizado direto do canal</li>
           </ul>
-          <a href={WHATSAPP_URL} className="inline-block rounded-full bg-neon px-8 py-3 font-bold text-black">Quero isso no meu evento</a>
+          <div className="flex flex-wrap gap-3">
+            <a href={WHATSAPP_URL} className="inline-block rounded-full bg-neon px-8 py-3 font-bold text-black">Quero isso no meu evento</a>
+            <a href={YOUTUBE_CHANNEL_URL} target="_blank" rel="noreferrer" className="inline-block rounded-full border border-zinc-500 px-6 py-3 font-semibold text-white">Abrir canal</a>
+          </div>
         </div>
       </div>
     </section>

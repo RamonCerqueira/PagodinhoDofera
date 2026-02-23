@@ -29,3 +29,5 @@ Landing page de alta conversão para contratação via WhatsApp com admin de age
 ## Conteúdo visual
 - Logomarca usada em `public/logo-pagodinho.svg`
 - Reel destacado: `https://www.instagram.com/pagodinhodofera/reel/DQvKG0-EeIX/`
+
+- Canal YouTube oficial: `https://www.youtube.com/@VALFERA`

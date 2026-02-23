@@ -32,6 +32,11 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
+<<<<<<< codex/create-professional-artist-website-9nh7vr
+    if (!auth) return;
+
+=======
+>>>>>>> main
     const unsub = onAuthStateChanged(auth, (current) => {
       setUser(current);
       if (current) load();
@@ -42,6 +47,14 @@ export default function AdminPage() {
 
   async function login(e: FormEvent) {
     e.preventDefault();
+<<<<<<< codex/create-professional-artist-website-9nh7vr
+    if (!auth) {
+      setAuthError('Firebase Auth indisponível neste ambiente.');
+      return;
+    }
+
+=======
+>>>>>>> main
     setAuthError('');
     try {
       await signInWithEmailAndPassword(auth, email, password);
@@ -102,7 +115,11 @@ export default function AdminPage() {
     <main className="mx-auto max-w-5xl px-6 py-10">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold">Admin de Agenda</h1>
+<<<<<<< codex/create-professional-artist-website-9nh7vr
+        <button className="rounded bg-zinc-800 px-4 py-2" onClick={() => auth && signOut(auth)}>Sair</button>
+=======
         <button className="rounded bg-zinc-800 px-4 py-2" onClick={() => signOut(auth)}>Sair</button>
+>>>>>>> main
       </div>
 
       <form onSubmit={save} className="grid gap-3 rounded-xl border border-zinc-800 bg-zinc-950 p-6 md:grid-cols-2">

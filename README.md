@@ -10,13 +10,18 @@ Landing page de alta conversão para contratação via WhatsApp com admin de age
 
 ## Setup
 1. `npm install`
+<<<<<<< codex/create-professional-artist-website-9nh7vr
+=======
 <<<<<<< codex/create-professional-artist-website-ayg7h1
+>>>>>>> main
 2. Copie `.env.example` para `.env.local` e ajuste se necessário:
    - `cp .env.example .env.local`
    - Já preenchido com os dados do projeto Firebase enviado (incluindo `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`).
 3. No Firebase Console, habilite **Authentication > Email/Senha** e crie o usuário admin.
 4. No Firestore, use/crie a coleção `eventos` com campos: `titulo`, `data`, `hora`, `cidade`, `local`, `destaque`, `imagem`.
 5. `npm run dev`
+<<<<<<< codex/create-professional-artist-website-9nh7vr
+=======
 =======
 2. Crie `.env.local` com:
    - `NEXT_PUBLIC_FIREBASE_API_KEY`
@@ -28,6 +33,7 @@ Landing page de alta conversão para contratação via WhatsApp com admin de age
    - `NEXT_PUBLIC_INSTAGRAM_EMBEDS` (opcional: shortcodes separados por vírgula)
 3. Crie um usuário no Firebase Auth para acessar `/admin`
 4. `npm run dev`
+>>>>>>> main
 >>>>>>> main
 
 ## Rotas

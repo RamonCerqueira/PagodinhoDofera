@@ -1,9 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-<<<<<<< codex/create-professional-artist-website-9nh7vr
 import { getAuth, type Auth } from 'firebase/auth';
-=======
-import { getAuth } from 'firebase/auth';
->>>>>>> main
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -19,8 +15,4 @@ const firebaseConfig = {
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
-<<<<<<< codex/create-professional-artist-website-9nh7vr
 export const auth: Auth | null = typeof window !== 'undefined' ? getAuth(app) : null;
-=======
-export const auth = getAuth(app);
->>>>>>> main

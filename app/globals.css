@@ -3,17 +3,25 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   scroll-behavior: smooth;
 }
 
 body {
-  @apply bg-night text-white antialiased;
+  @apply antialiased;
   font-family: 'Montserrat', sans-serif;
+  background: linear-gradient(180deg, #fffdf3 0%, #fff7db 100%);
+  color: #181818;
+}
+
+body.theme-dark {
+  color-scheme: dark;
+  background: #090909;
+  color: #f5f5f5;
 }
 
 .section-title {
-  @apply mb-6 text-3xl font-bold uppercase tracking-wide text-white md:text-4xl;
+  @apply mb-6 text-3xl font-bold uppercase tracking-wide md:text-4xl;
   font-family: 'Oswald', sans-serif;
 }
 
@@ -21,8 +29,17 @@ body {
   box-shadow: 0 0 24px rgba(255, 214, 10, 0.35);
 }
 
+.soft-panel {
+  @apply rounded-2xl border border-amber-200 bg-white/80 backdrop-blur;
+}
+
+body.theme-dark .soft-panel {
+  @apply border-zinc-700 bg-zinc-900/80;
+}
+
 .loading-screen {
-  @apply flex h-screen flex-col items-center justify-center gap-6 bg-black px-6 text-center;
+  @apply flex h-screen flex-col items-center justify-center gap-6 px-6 text-center;
+  background: radial-gradient(circle at center, #1a1a1a 0%, #000 65%);
 }
 
 .loading-logo-wrap {
@@ -30,17 +47,17 @@ body {
 }
 
 .loading-logo {
-  @apply text-4xl font-bold tracking-wider text-neon md:text-5xl;
+  @apply text-4xl font-bold tracking-wider text-yellow-300 md:text-5xl;
   font-family: 'Oswald', sans-serif;
   animation: logoPulse 1.8s ease-in-out infinite;
 }
 
 .loading-glow {
-  @apply absolute -bottom-2 left-1/2 h-2 w-44 -translate-x-1/2 rounded-full bg-neon/40 blur-lg;
+  @apply absolute -bottom-2 left-1/2 h-2 w-44 -translate-x-1/2 rounded-full bg-yellow-300/40 blur-lg;
 }
 
 .loading-phrase {
-  @apply max-w-2xl text-sm uppercase tracking-[0.2em] text-zinc-300 md:text-base;
+  @apply max-w-2xl text-sm uppercase tracking-[0.2em] text-zinc-200 md:text-base;
   animation: phraseGlow 2.4s ease-in-out infinite;
 }
 
@@ -49,57 +66,36 @@ body {
 }
 
 .loading-eq-bar {
-  @apply w-1 rounded-full bg-neon;
+  @apply w-1 rounded-full bg-yellow-300;
   height: 10px;
   animation: eqBeat 0.9s ease-in-out infinite;
 }
 
 .loading-track {
-  @apply h-1 w-64 overflow-hidden rounded-full bg-zinc-800 md:w-80;
+  @apply h-1 w-64 overflow-hidden rounded-full bg-zinc-700 md:w-80;
 }
 
 .loading-progress {
-  @apply h-full bg-neon;
+  @apply h-full bg-yellow-300;
   animation: progressFill 2s ease-out infinite;
 }
 
 @keyframes progressFill {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(0%);
-  }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(0%); }
 }
 
 @keyframes logoPulse {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 0 rgba(255, 214, 10, 0.25));
-  }
-  50% {
-    filter: drop-shadow(0 0 16px rgba(255, 214, 10, 0.75));
-  }
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(255, 214, 10, 0.25)); }
+  50% { filter: drop-shadow(0 0 16px rgba(255, 214, 10, 0.75)); }
 }
 
 @keyframes eqBeat {
-  0%,
-  100% {
-    height: 10px;
-    opacity: 0.45;
-  }
-  50% {
-    height: 30px;
-    opacity: 1;
-  }
+  0%, 100% { height: 10px; opacity: 0.45; }
+  50% { height: 30px; opacity: 1; }
 }
 
 @keyframes phraseGlow {
-  0%,
-  100% {
-    opacity: 0.65;
-  }
-  50% {
-    opacity: 1;
-  }
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 1; }
 }

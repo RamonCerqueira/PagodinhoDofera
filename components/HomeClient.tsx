@@ -15,15 +15,24 @@ import {
   WeekAvailability
 } from '@/components/sections';
 import { EventItem, getEvents } from '@/lib/getEvents';
+import { LoadingScreen } from './LoadingScreen';
 
 export function HomeClient() {
   const [events, setEvents] = useState<EventItem[]>([]);
+  const [showLoader, setShowLoader] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowLoader(false), 1800);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     getEvents()
       .then(setEvents)
       .catch(() => setEvents([]));
   }, []);
+
+  if (showLoader) return <LoadingScreen />;
 
   return (
     <main>

@@ -5,7 +5,9 @@ import {
   signInWithEmailAndPassword, 
   onAuthStateChanged, 
   signOut,
-  User
+  User,
+  GoogleAuthProvider,
+  signInWithPopup
 } from 'firebase/auth';
 import { 
   collection, 
@@ -19,7 +21,7 @@ import {
 } from 'firebase/firestore';
 import { db, auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input'; // Assuming this exists or I'll use standard input
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Edit, Plus, LogOut, Star, Calendar, MapPin, Clock } from 'lucide-react';
 import { EventItem } from '@/lib/getEvents';
@@ -30,6 +32,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const allowed = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
 
   const [events, setEvents] = useState<EventItem[]>([]);
   const [isEditing, setIsEditing] = useState<string | null>(null);
@@ -47,6 +50,13 @@ export default function AdminPage() {
   useEffect(() => {
     if (!auth) return;
     const unsubscribe = onAuthStateChanged(auth, (u) => {
+      if (u && allowed.length && u.email && !allowed.includes(u.email.toLowerCase())) {
+        setError('Acesso não autorizado para este usuário.');
+        signOut(auth);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
       setUser(u);
       setLoading(false);
     });
@@ -72,8 +82,30 @@ export default function AdminPage() {
     }
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      if (allowed.length && auth.currentUser?.email && !allowed.includes(auth.currentUser.email.toLowerCase())) {
+        setError('Acesso não autorizado para este usuário.');
+        await signOut(auth);
+      }
     } catch (err: any) {
       setError('Login falhou. Verifique suas credenciais.');
+    }
+  };
+  
+  const handleGoogleLogin = async () => {
+    setError('');
+    if (!auth) {
+      setError('Erro na configuração do Firebase');
+      return;
+    }
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      if (allowed.length && auth.currentUser?.email && !allowed.includes(auth.currentUser.email.toLowerCase())) {
+        setError('Acesso não autorizado para este usuário.');
+        await signOut(auth);
+      }
+    } catch (err) {
+      setError('Falha no login com Google.');
     }
   };
 
@@ -134,20 +166,18 @@ export default function AdminPage() {
           <form onSubmit={handleLogin} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-zinc-400">Email</label>
-              <input 
-                type="email" 
-                required 
-                className="mt-1 block w-full rounded-md bg-zinc-800 border-zinc-700 text-white p-3 focus:ring-amber-500 focus:border-amber-500"
+              <Input 
+                type="email"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-400">Senha</label>
-              <input 
-                type="password" 
-                required 
-                className="mt-1 block w-full rounded-md bg-zinc-800 border-zinc-700 text-white p-3 focus:ring-amber-500 focus:border-amber-500"
+              <Input 
+                type="password"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -157,6 +187,14 @@ export default function AdminPage() {
               Entrar
             </Button>
           </form>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-zinc-800" />
+            <span className="text-xs text-zinc-500 uppercase tracking-wider">ou</span>
+            <div className="flex-1 h-px bg-zinc-800" />
+          </div>
+          <Button onClick={handleGoogleLogin} className="w-full bg-white text-black hover:bg-zinc-200 font-bold">
+            Entrar com Google
+          </Button>
         </div>
       </div>
     );
@@ -183,10 +221,9 @@ export default function AdminPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="text-sm text-zinc-400">Título do Evento</label>
-                <input 
-                  type="text" 
-                  required 
-                  className="w-full rounded bg-zinc-800 border-zinc-700 p-2 text-white"
+                <Input 
+                  type="text"
+                  required
                   value={formData.titulo}
                   onChange={(e) => setFormData({...formData, titulo: e.target.value})}
                   placeholder="Ex: Pagode no Bar"
@@ -196,20 +233,18 @@ export default function AdminPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm text-zinc-400">Data (YYYY-MM-DD)</label>
-                  <input 
-                    type="date" 
-                    required 
-                    className="w-full rounded bg-zinc-800 border-zinc-700 p-2 text-white"
+                  <Input 
+                    type="date"
+                    required
                     value={formData.data}
                     onChange={(e) => setFormData({...formData, data: e.target.value})}
                   />
                 </div>
                 <div>
                   <label className="text-sm text-zinc-400">Hora</label>
-                  <input 
-                    type="time" 
-                    required 
-                    className="w-full rounded bg-zinc-800 border-zinc-700 p-2 text-white"
+                  <Input 
+                    type="time"
+                    required
                     value={formData.hora}
                     onChange={(e) => setFormData({...formData, hora: e.target.value})}
                   />
@@ -218,10 +253,9 @@ export default function AdminPage() {
 
               <div>
                 <label className="text-sm text-zinc-400">Cidade</label>
-                <input 
-                  type="text" 
-                  required 
-                  className="w-full rounded bg-zinc-800 border-zinc-700 p-2 text-white"
+                <Input 
+                  type="text"
+                  required
                   value={formData.cidade}
                   onChange={(e) => setFormData({...formData, cidade: e.target.value})}
                   placeholder="Ex: Salvador - BA"
@@ -230,10 +264,9 @@ export default function AdminPage() {
 
               <div>
                 <label className="text-sm text-zinc-400">Local</label>
-                <input 
-                  type="text" 
-                  required 
-                  className="w-full rounded bg-zinc-800 border-zinc-700 p-2 text-white"
+                <Input 
+                  type="text"
+                  required
                   value={formData.local}
                   onChange={(e) => setFormData({...formData, local: e.target.value})}
                   placeholder="Ex: Casa de Show X"

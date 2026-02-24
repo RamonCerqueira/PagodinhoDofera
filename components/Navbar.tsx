@@ -5,14 +5,18 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { WHATSAPP_URL } from '@/lib/constants';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, User } from 'lucide-react';
 import { Button } from './ui/button';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, signOut, type User as FirebaseUser } from 'firebase/auth';
 
 import { MusicPlayer } from './MusicPlayer';
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [dark, setDark] = useState(true); // Default to dark for premium feel
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -25,6 +29,12 @@ export function Navbar() {
     document.documentElement.classList.toggle('dark', isDark);
 
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!auth) return;
+    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsub();
   }, []);
 
   function toggleTheme() {
@@ -73,7 +83,40 @@ export function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 relative">
+          <div className="relative">
+            <Button 
+              asChild
+              variant="ghost" 
+              size="icon" 
+              className={`rounded-full hover:bg-foreground/10 ${user ? 'ring-2 ring-emerald-500/70' : ''}`}
+              aria-label="Admin"
+              title={user ? (user.email || 'Admin') : 'Admin'}
+              onClick={() => setMenuOpen((v) => !v)}
+            >
+              <Link href="/admin">
+                <User className={`h-5 w-5 ${user ? 'text-emerald-400' : 'text-foreground/60 hover:text-foreground'}`} />
+              </Link>
+            </Button>
+            {menuOpen && (
+              <div className="absolute right-0 mt-2 w-40 rounded-xl border border-border bg-background/95 backdrop-blur shadow-lg p-1 z-50">
+                <Link className="block px-3 py-2 text-sm rounded-md hover:bg-foreground/10" href="/admin" onClick={() => setMenuOpen(false)}>
+                  Abrir Admin
+                </Link>
+                {user ? (
+                  <button
+                    className="w-full text-left px-3 py-2 text-sm rounded-md hover:bg-foreground/10"
+                    onClick={async () => {
+                      setMenuOpen(false);
+                      if (auth) await signOut(auth);
+                    }}
+                  >
+                    Sair
+                  </button>
+                ) : null}
+              </div>
+            )}
+          </div>
           <Button 
             variant="ghost" 
             size="icon" 

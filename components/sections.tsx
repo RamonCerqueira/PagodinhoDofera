@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 import { EventItem } from '@/lib/getEvents';
 import { fallbackEvents, testimonials } from './data';
+import Image from 'next/image';
 
 const wa = 'https://wa.me/5500000000000?text=Quero%20contratar%20o%20show';
 
@@ -138,11 +139,13 @@ export function Gallery() {
       <h2 className="section-title">Galeria</h2>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <img
+          <Image
             key={i}
-            className="h-48 w-full rounded-xl object-cover transition hover:scale-[1.03]"
             src={`https://picsum.photos/seed/pagode-${i}/600/400`}
             alt="show"
+            width={600}
+            height={400}
+            className="h-48 w-full rounded-xl object-cover transition hover:scale-[1.03]"
           />
         ))}
       </div>

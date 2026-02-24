@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { 
   signInWithEmailAndPassword, 
   onAuthStateChanged, 
@@ -32,7 +32,10 @@ export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
-  const allowed = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  const allowed = useMemo(
+    () => (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean),
+    []
+  );
 
   const [events, setEvents] = useState<EventItem[]>([]);
   const [isEditing, setIsEditing] = useState<string | null>(null);
@@ -48,11 +51,15 @@ export default function AdminPage() {
   });
 
   useEffect(() => {
-    if (!auth) return;
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
+    const firebaseAuth = auth;
+    if (!firebaseAuth) {
+      setLoading(false);
+      return;
+    }
+    const unsubscribe = onAuthStateChanged(firebaseAuth, (u) => {
       if (u && allowed.length && u.email && !allowed.includes(u.email.toLowerCase())) {
         setError('Acesso não autorizado para este usuário.');
-        signOut(auth);
+        signOut(firebaseAuth);
         setUser(null);
         setLoading(false);
         return;
@@ -61,7 +68,7 @@ export default function AdminPage() {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [allowed]);
 
   useEffect(() => {
     if (!user) return;
@@ -76,15 +83,16 @@ export default function AdminPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!auth) {
+    const firebaseAuth = auth;
+    if (!firebaseAuth) {
         setError('Erro na configuração do Firebase');
         return;
     }
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      if (allowed.length && auth.currentUser?.email && !allowed.includes(auth.currentUser.email.toLowerCase())) {
+      await signInWithEmailAndPassword(firebaseAuth, email, password);
+      if (allowed.length && firebaseAuth.currentUser?.email && !allowed.includes(firebaseAuth.currentUser.email.toLowerCase())) {
         setError('Acesso não autorizado para este usuário.');
-        await signOut(auth);
+        await signOut(firebaseAuth);
       }
     } catch (err: any) {
       setError('Login falhou. Verifique suas credenciais.');
@@ -93,16 +101,17 @@ export default function AdminPage() {
   
   const handleGoogleLogin = async () => {
     setError('');
-    if (!auth) {
+    const firebaseAuth = auth;
+    if (!firebaseAuth) {
       setError('Erro na configuração do Firebase');
       return;
     }
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      if (allowed.length && auth.currentUser?.email && !allowed.includes(auth.currentUser.email.toLowerCase())) {
+      await signInWithPopup(firebaseAuth, provider);
+      if (allowed.length && firebaseAuth.currentUser?.email && !allowed.includes(firebaseAuth.currentUser.email.toLowerCase())) {
         setError('Acesso não autorizado para este usuário.');
-        await signOut(auth);
+        await signOut(firebaseAuth);
       }
     } catch (err) {
       setError('Falha no login com Google.');
@@ -110,7 +119,8 @@ export default function AdminPage() {
   };
 
   const handleLogout = () => {
-    if (auth) signOut(auth);
+    const firebaseAuth = auth;
+    if (firebaseAuth) signOut(firebaseAuth);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

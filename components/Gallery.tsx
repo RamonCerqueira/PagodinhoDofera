@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 export function Gallery() {
   const photos = [
@@ -31,11 +32,14 @@ export function Gallery() {
                 whileHover={{ scale: 1.01 }}
                 className={`relative shrink-0 snap-center rounded-3xl border-4 ${borders[i % borders.length]} bg-white overflow-hidden inline-flex items-center justify-center p-3`}
               >
-                <img
+                <Image
                   src={url}
                   alt={`show-${i + 1}`}
+                  width={1600}
+                  height={1200}
+                  priority={i === 0}
+                  sizes="(max-width: 768px) 90vw, (max-width: 1024px) 80vw, 70vw"
                   className="h-auto w-auto max-h-[80vh] max-w-[90vw] md:max-w-[80vw] lg:max-w-[70vw] object-contain"
-                  loading={i === 0 ? 'eager' : 'lazy'}
                 />
               </motion.div>
             ))}

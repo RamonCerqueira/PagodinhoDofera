@@ -1,0 +1,9 @@
+<svg width="420" height="180" viewBox="0 0 420 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="420" height="180" rx="16" fill="#111111"/>
+  <rect x="10" y="10" width="400" height="160" rx="10" fill="#F4F4F4"/>
+  <text x="24" y="68" font-family="Arial Black, Arial, sans-serif" font-size="54" fill="#FFFFFF" stroke="#111111" stroke-width="3">PAGODINHO</text>
+  <rect x="24" y="76" width="126" height="56" rx="6" fill="#0F7DCD"/>
+  <text x="32" y="117" font-family="Arial Black, Arial, sans-serif" font-size="42" fill="#111111">DO</text>
+  <rect x="162" y="76" width="232" height="76" rx="6" fill="#FFD60A"/>
+  <text x="174" y="132" font-family="Arial Black, Arial, sans-serif" font-size="66" fill="#111111">FERA</text>
+</svg>

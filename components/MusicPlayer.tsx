@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, Music } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Play, Pause, SkipForward, SkipBack, Music } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 
-const ReactPlayer = dynamic(() => import('react-player'), { ssr: false });
+const ReactPlayer = dynamic(() => import('react-player').then((m) => m.default), { ssr: false }) as any;
 
 const PLAYLIST = [
   { url: 'https://youtu.be/bjksC63eHvU?si=pVXkUrC1nlyA_rcf', title: 'CPF Novo', artist: 'Pagodinho do Fera' },
@@ -21,7 +21,6 @@ export function MusicPlayer({ inline = false }: { inline?: boolean }) {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [volume, setVolume] = useState(0.5);
   const [isMuted, setIsMuted] = useState(true);
-  const [isReady, setIsReady] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAudioPrompt, setShowAudioPrompt] = useState(true);
   const [consentOpen, setConsentOpen] = useState(false);
@@ -48,10 +47,6 @@ export function MusicPlayer({ inline = false }: { inline?: boolean }) {
 
   const handlePrev = () => {
     setCurrentTrackIndex((prev) => (prev - 1 + PLAYLIST.length) % PLAYLIST.length);
-  };
-
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
   };
 
   useEffect(() => {
@@ -116,17 +111,9 @@ export function MusicPlayer({ inline = false }: { inline?: boolean }) {
             volume={volume}
             muted={isMuted}
             onEnded={handleNext}
-            onReady={() => setIsReady(true)}
             onPlay={() => setShowAudioPrompt(false)}
             width="0"
             height="0"
-            config={{
-              youtube: {
-                playsinline: 1,
-                rel: 0,
-                origin: typeof window !== 'undefined' ? window.location.origin : undefined
-              }
-            }}
           />
         </div>
       )}

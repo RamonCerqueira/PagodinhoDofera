@@ -7,7 +7,7 @@ import { EventItem } from '@/lib/getEvents';
 import { fallbackEvents } from '@/components/data';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Modal } from '@/components/ui/modal';
+import { AgendaModal } from '@/components/AgendaModal';
 import { WHATSAPP_URL } from '@/lib/constants';
 
 function getExtendedDates(events: EventItem[]) {
@@ -248,46 +248,7 @@ export function WeekAvailability({ events }: { events?: EventItem[] }) {
         </Button>
       </div>
 
-      {/* Full Agenda Modal */}
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)}
-        title="Agenda Completa"
-      >
-        <div className="space-y-6">
-          <p className="text-zinc-400">
-            Confira nossa disponibilidade para os próximos meses. Para datas específicas, entre em contato diretamente.
-          </p>
-          
-          <div className="grid gap-2 max-h-[60vh] overflow-y-auto pr-2">
-            {base.map((event) => (
-              <div key={event.id} className="flex items-center justify-between p-4 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-primary/50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="flex flex-col items-center justify-center w-14 h-14 rounded-lg bg-zinc-800 text-zinc-400 font-bold border border-zinc-700">
-                    <span className="text-xl text-white">{new Date(event.data).getDate()}</span>
-                    <span className="text-[10px] uppercase text-primary">{new Date(event.data).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}</span>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-white text-lg">{event.titulo}</h4>
-                    <p className="text-sm text-zinc-500 flex items-center gap-1">
-                      <MapPin className="h-3 w-3" /> {event.local} • {event.cidade}
-                    </p>
-                  </div>
-                </div>
-                {event.destaque && <Badge className="bg-amber-500 text-black text-[10px] font-bold">DESTAQUE</Badge>}
-              </div>
-            ))}
-          </div>
-
-          <div className="pt-4 border-t border-zinc-800">
-            <Button className="w-full bg-primary text-black font-bold h-14 text-lg hover:bg-primary/90" asChild>
-              <a href={WHATSAPP_URL}>
-                <MessageCircle className="mr-2 h-6 w-6" /> Falar com Produção
-              </a>
-            </Button>
-          </div>
-        </div>
-      </Modal>
+      <AgendaModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} events={base} />
     </section>
   );
 }

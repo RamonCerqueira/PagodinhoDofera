@@ -1,62 +1,370 @@
 'use client';
 
-import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from 'firebase/firestore';
-import { FormEvent, useEffect, useState } from 'react';
-import { db } from '@/lib/firebase';
-
-type EventForm = { id?: string; titulo: string; data: string; hora: string; cidade: string; local: string; destaque: boolean; imagem?: string };
-
-const empty: EventForm = { titulo: '', data: '', hora: '', cidade: '', local: '', destaque: false, imagem: '' };
+import { useState, useEffect } from 'react';
+import { 
+  signInWithEmailAndPassword, 
+  onAuthStateChanged, 
+  signOut,
+  User,
+  GoogleAuthProvider,
+  signInWithPopup
+} from 'firebase/auth';
+import { 
+  collection, 
+  addDoc, 
+  updateDoc, 
+  deleteDoc, 
+  doc, 
+  onSnapshot, 
+  query, 
+  orderBy 
+} from 'firebase/firestore';
+import { db, auth } from '@/lib/firebase';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Trash2, Edit, Plus, LogOut, Star, Calendar, MapPin, Clock } from 'lucide-react';
+import { EventItem } from '@/lib/getEvents';
 
 export default function AdminPage() {
-  const [items, setItems] = useState<EventForm[]>([]);
-  const [form, setForm] = useState<EventForm>(empty);
+  const [user, setUser] = useState<User | null>(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
+  const allowed = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
 
-  async function load() {
-    const snap = await getDocs(collection(db, 'eventos'));
-    setItems(snap.docs.map((d) => ({ id: d.id, ...(d.data() as EventForm) })));
-  }
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [isEditing, setIsEditing] = useState<string | null>(null);
+  
+  // Form State
+  const [formData, setFormData] = useState({
+    titulo: '',
+    data: '',
+    hora: '',
+    cidade: '',
+    local: '',
+    destaque: false
+  });
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    if (!auth) return;
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      if (u && allowed.length && u.email && !allowed.includes(u.email.toLowerCase())) {
+        setError('Acesso não autorizado para este usuário.');
+        signOut(auth);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+      setUser(u);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
-  async function save(e: FormEvent) {
+  useEffect(() => {
+    if (!user) return;
+    const q = query(collection(db, 'eventos'), orderBy('data', 'asc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as EventItem));
+      setEvents(items);
+    });
+    return () => unsubscribe();
+  }, [user]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.id) {
-      await updateDoc(doc(db, 'eventos', form.id), form);
-    } else {
-      await addDoc(collection(db, 'eventos'), form);
+    setError('');
+    if (!auth) {
+        setError('Erro na configuração do Firebase');
+        return;
     }
-    setForm(empty);
-    await load();
-  }
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      if (allowed.length && auth.currentUser?.email && !allowed.includes(auth.currentUser.email.toLowerCase())) {
+        setError('Acesso não autorizado para este usuário.');
+        await signOut(auth);
+      }
+    } catch (err: any) {
+      setError('Login falhou. Verifique suas credenciais.');
+    }
+  };
+  
+  const handleGoogleLogin = async () => {
+    setError('');
+    if (!auth) {
+      setError('Erro na configuração do Firebase');
+      return;
+    }
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      if (allowed.length && auth.currentUser?.email && !allowed.includes(auth.currentUser.email.toLowerCase())) {
+        setError('Acesso não autorizado para este usuário.');
+        await signOut(auth);
+      }
+    } catch (err) {
+      setError('Falha no login com Google.');
+    }
+  };
 
-  async function remove(id?: string) {
-    if (!id) return;
-    await deleteDoc(doc(db, 'eventos', id));
-    await load();
+  const handleLogout = () => {
+    if (auth) signOut(auth);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (isEditing) {
+        await updateDoc(doc(db, 'eventos', isEditing), formData);
+        setIsEditing(null);
+      } else {
+        await addDoc(collection(db, 'eventos'), formData);
+      }
+      setFormData({
+        titulo: '',
+        data: '',
+        hora: '',
+        cidade: '',
+        local: '',
+        destaque: false
+      });
+    } catch (err) {
+      alert('Erro ao salvar evento');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm('Tem certeza que deseja excluir este evento?')) {
+      await deleteDoc(doc(db, 'eventos', id));
+    }
+  };
+
+  const handleEdit = (event: EventItem) => {
+    setFormData({
+      titulo: event.titulo,
+      data: event.data,
+      hora: event.hora,
+      cidade: event.cidade,
+      local: event.local,
+      destaque: event.destaque
+    });
+    setIsEditing(event.id);
+  };
+
+  if (loading) return <div className="flex h-screen items-center justify-center bg-zinc-950 text-white">Carregando...</div>;
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-6">
+        <div className="w-full max-w-md space-y-8 rounded-2xl bg-zinc-900 p-8 border border-zinc-800 shadow-2xl">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-white">Admin Pagodinho</h2>
+            <p className="mt-2 text-zinc-400">Entre para gerenciar a agenda</p>
+          </div>
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-zinc-400">Email</label>
+              <Input 
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-zinc-400">Senha</label>
+              <Input 
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+            <Button type="submit" className="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold">
+              Entrar
+            </Button>
+          </form>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-zinc-800" />
+            <span className="text-xs text-zinc-500 uppercase tracking-wider">ou</span>
+            <div className="flex-1 h-px bg-zinc-800" />
+          </div>
+          <Button onClick={handleGoogleLogin} className="w-full bg-white text-black hover:bg-zinc-200 font-bold">
+            Entrar com Google
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
-      <h1 className="mb-6 text-3xl font-bold">Admin de Agenda</h1>
-      <form onSubmit={save} className="grid gap-3 rounded-xl border border-zinc-800 bg-zinc-950 p-6 md:grid-cols-2">
-        {['titulo', 'data', 'hora', 'cidade', 'local', 'imagem'].map((f) => (
-          <input key={f} required={f !== 'imagem'} className="rounded bg-zinc-900 p-2" placeholder={f} value={(form as never)[f] ?? ''} onChange={(e) => setForm({ ...form, [f]: e.target.value })} />
-        ))}
-        <label className="flex items-center gap-2"><input type="checkbox" checked={form.destaque} onChange={(e) => setForm({ ...form, destaque: e.target.checked })} /> Destaque</label>
-        <button className="rounded bg-neon p-2 font-bold text-black">Salvar Evento</button>
-      </form>
-      <div className="mt-6 grid gap-3">
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center justify-between rounded border border-zinc-800 p-3">
-            <span>{item.titulo} • {item.data} {item.hora}</span>
-            <div className="flex gap-2">
-              <button className="rounded bg-zinc-800 px-3 py-1" onClick={() => setForm(item)}>Editar</button>
-              <button className="rounded bg-red-600 px-3 py-1" onClick={() => remove(item.id)}>Excluir</button>
-            </div>
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 p-6 md:p-12">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex items-center justify-between mb-12">
+          <h1 className="text-3xl font-bold text-white">Painel de Controle</h1>
+          <Button variant="destructive" onClick={handleLogout} className="gap-2">
+            <LogOut className="h-4 w-4" /> Sair
+          </Button>
+        </div>
+
+        <div className="grid gap-12 md:grid-cols-[1fr_2fr]">
+          {/* Form */}
+          <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-6 h-fit sticky top-6">
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+              {isEditing ? <Edit className="h-5 w-5 text-amber-500" /> : <Plus className="h-5 w-5 text-emerald-500" />}
+              {isEditing ? 'Editar Evento' : 'Novo Evento'}
+            </h2>
+            
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="text-sm text-zinc-400">Título do Evento</label>
+                <Input 
+                  type="text"
+                  required
+                  value={formData.titulo}
+                  onChange={(e) => setFormData({...formData, titulo: e.target.value})}
+                  placeholder="Ex: Pagode no Bar"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-zinc-400">Data (YYYY-MM-DD)</label>
+                  <Input 
+                    type="date"
+                    required
+                    value={formData.data}
+                    onChange={(e) => setFormData({...formData, data: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-zinc-400">Hora</label>
+                  <Input 
+                    type="time"
+                    required
+                    value={formData.hora}
+                    onChange={(e) => setFormData({...formData, hora: e.target.value})}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm text-zinc-400">Cidade</label>
+                <Input 
+                  type="text"
+                  required
+                  value={formData.cidade}
+                  onChange={(e) => setFormData({...formData, cidade: e.target.value})}
+                  placeholder="Ex: Salvador - BA"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-zinc-400">Local</label>
+                <Input 
+                  type="text"
+                  required
+                  value={formData.local}
+                  onChange={(e) => setFormData({...formData, local: e.target.value})}
+                  placeholder="Ex: Casa de Show X"
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <input 
+                  type="checkbox" 
+                  id="destaque"
+                  className="h-5 w-5 rounded border-zinc-700 bg-zinc-800 text-amber-500 focus:ring-amber-500"
+                  checked={formData.destaque}
+                  onChange={(e) => setFormData({...formData, destaque: e.target.checked})}
+                />
+                <label htmlFor="destaque" className="text-sm font-medium cursor-pointer">
+                  Marcar como Destaque (Próximo Show)
+                </label>
+              </div>
+
+              <div className="pt-4 flex gap-2">
+                <Button type="submit" className="flex-1 bg-white text-black hover:bg-zinc-200 font-bold">
+                  {isEditing ? 'Atualizar' : 'Adicionar'}
+                </Button>
+                {isEditing && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => {
+                      setIsEditing(null);
+                      setFormData({
+                        titulo: '',
+                        data: '',
+                        hora: '',
+                        cidade: '',
+                        local: '',
+                        destaque: false
+                      });
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                )}
+              </div>
+            </form>
           </div>
-        ))}
+
+          {/* List */}
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-zinc-400" />
+              Eventos Agendados ({events.length})
+            </h2>
+
+            {events.length === 0 ? (
+              <div className="text-center py-12 border border-dashed border-zinc-800 rounded-xl text-zinc-500">
+                Nenhum evento cadastrado. Adicione o primeiro!
+              </div>
+            ) : (
+              <div className="grid gap-4">
+                {events.map((event) => (
+                  <div 
+                    key={event.id} 
+                    className={`
+                      relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4 
+                      rounded-xl border p-6 transition-all
+                      ${event.destaque ? 'border-amber-500/50 bg-amber-500/5' : 'border-zinc-800 bg-zinc-900/50'}
+                    `}
+                  >
+                    {event.destaque && (
+                      <div className="absolute -top-3 left-6">
+                        <Badge className="bg-amber-500 text-black hover:bg-amber-600">Destaque</Badge>
+                      </div>
+                    )}
+                    
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-white">{event.titulo}</h3>
+                      <div className="flex flex-wrap gap-4 mt-2 text-sm text-zinc-400">
+                        <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {new Date(event.data).toLocaleDateString('pt-BR')}</span>
+                        <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {event.hora}</span>
+                        <span className="flex items-center gap-1"><MapPin className="h-4 w-4" /> {event.local}, {event.cidade}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Button size="icon" variant="ghost" onClick={() => handleEdit(event)} className="hover:text-amber-500">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button size="icon" variant="ghost" onClick={() => handleDelete(event.id)} className="hover:text-red-500 text-red-500/50">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }

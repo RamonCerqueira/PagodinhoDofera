@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-night text-white antialiased;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.section-title {
+  @apply mb-6 text-3xl font-bold uppercase tracking-wide text-white md:text-4xl;
+  font-family: 'Oswald', sans-serif;
+}
+
+.glow {
+  box-shadow: 0 0 24px rgba(255, 214, 10, 0.35);
+}

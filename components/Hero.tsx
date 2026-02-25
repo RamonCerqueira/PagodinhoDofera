@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 
 export function Hero() {
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black text-center" id="top">
+    <section className="relative flex min-h-[92svh] md:min-h-screen items-center justify-center overflow-hidden bg-black text-center pt-20 md:pt-0" id="top">
       <div className="absolute inset-0 z-0">
         <video 
           autoPlay 
@@ -28,9 +28,9 @@ export function Hero() {
         initial={{ opacity: 0, y: 40 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.8 }}
-        className="relative z-10 max-w-5xl px-6 py-24 flex flex-col items-center"
+        className="relative z-10 max-w-5xl px-4 md:px-6 pt-10 pb-16 md:py-24 flex flex-col items-center"
       >
-        <div className="mb-8 relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl shadow-primary/20 animate-float">
+        <div className="mb-6 md:mb-8 relative w-32 h-32 sm:w-40 sm:h-40 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl shadow-primary/20 animate-float">
            <Image 
             src="/images/logo.jpg" 
             alt="Logomarca Pagodinho do Fera" 
@@ -40,18 +40,18 @@ export function Hero() {
           />
         </div>
         
-        <h1 className="mb-6 text-5xl font-bold uppercase md:text-8xl tracking-tighter text-white drop-shadow-2xl">
+        <h1 className="mb-4 md:mb-6 text-4xl sm:text-5xl font-bold uppercase md:text-8xl tracking-tighter leading-[0.95] text-white drop-shadow-2xl">
           O pagode que <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600">transforma</span>
         </h1>
         
-        <p className="mb-10 text-xl md:text-2xl text-zinc-300 max-w-2xl font-light drop-shadow-md">
+        <p className="mb-8 md:mb-10 text-base sm:text-lg md:text-2xl text-zinc-300 max-w-2xl font-light drop-shadow-md">
           Energia ao vivo para eventos inesquecíveis. Leve o melhor do samba e pagode para sua festa.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
           <Button 
             size="lg" 
-            className="w-full sm:w-auto rounded-full bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 text-lg font-bold shadow-lg shadow-emerald-900/20 hover:scale-105 transition-all duration-300" 
+            className="w-full sm:w-auto rounded-full bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-5 md:py-6 text-base md:text-lg font-bold shadow-lg shadow-emerald-900/20 hover:scale-105 transition-all duration-300" 
             asChild
           >
             <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
@@ -62,7 +62,7 @@ export function Hero() {
           <Button 
             size="lg" 
             variant="outline" 
-            className="w-full sm:w-auto rounded-full px-8 py-6 text-lg border-white/20 text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300" 
+            className="w-full sm:w-auto rounded-full px-8 py-5 md:py-6 text-base md:text-lg border-white/20 text-white hover:bg-white/10 backdrop-blur-sm transition-all duration-300" 
             asChild
           >
             <a href="#agenda">
@@ -71,7 +71,7 @@ export function Hero() {
           </Button>
         </div>
         
-        <div className="mt-16 flex flex-wrap justify-center gap-3">
+        <div className="mt-10 md:mt-16 flex flex-wrap justify-center gap-2 md:gap-3">
           {['+ Show 100% Ao Vivo', '+ Repertório Atualizado', '+ Energia Surreal'].map((item, i) => (
             <motion.div
               key={item}
@@ -79,7 +79,7 @@ export function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 + (i * 0.1) }}
             >
-              <Badge variant="outline" className="px-4 py-2 text-sm border-white/10 text-zinc-400 bg-black/40 backdrop-blur-md">
+              <Badge variant="outline" className="px-3 md:px-4 py-2 text-xs md:text-sm border-white/10 text-zinc-400 bg-black/40 backdrop-blur-md">
                 {item}
               </Badge>
             </motion.div>

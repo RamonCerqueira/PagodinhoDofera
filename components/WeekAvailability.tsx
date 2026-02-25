@@ -125,7 +125,7 @@ export function WeekAvailability({ events }: { events?: EventItem[] }) {
       {/* Horizontal Scroll Container */}
       <div 
         ref={scrollContainerRef}
-        className="relative w-full overflow-x-auto pb-12 pt-12 px-4 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] cursor-grab active:cursor-grabbing"
+        className="relative w-full overflow-x-auto pb-8 pt-8 md:pb-12 md:pt-12 px-4 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] cursor-grab active:cursor-grabbing"
         onMouseDown={(e) => {
           if (!scrollContainerRef.current) return;
           isDraggingRef.current = true;
@@ -166,7 +166,7 @@ export function WeekAvailability({ events }: { events?: EventItem[] }) {
                 }}
                 className={`
                   relative flex flex-col items-center justify-between
-                  w-[260px] h-[400px] rounded-[2rem] p-6 shadow-2xl transition-all duration-300 select-none
+                  w-[220px] h-[320px] md:w-[260px] md:h-[400px] rounded-[1.75rem] md:rounded-[2rem] p-4 md:p-6 shadow-2xl transition-all duration-300 select-none
                   ${active 
                     ? 'bg-zinc-900 border-2 border-primary/50' 
                     : available 
@@ -187,7 +187,7 @@ export function WeekAvailability({ events }: { events?: EventItem[] }) {
                 {/* Big Number */}
                 <div className="flex-1 flex flex-col items-center justify-center w-full">
                   <span className={`
-                    text-[8rem] leading-none font-bold tracking-tighter
+                    text-[6rem] md:text-[8rem] leading-none font-bold tracking-tighter
                     ${active ? 'text-white' : 'text-zinc-900'}
                     font-heading drop-shadow-xl
                   `}>
@@ -195,10 +195,10 @@ export function WeekAvailability({ events }: { events?: EventItem[] }) {
                   </span>
                   
                   <span className={`
-                    text-xl font-bold tracking-[0.3em] uppercase mt-2
+                    text-lg md:text-xl font-bold tracking-[0.25em] md:tracking-[0.3em] uppercase mt-2
                     ${active ? 'text-primary' : 'text-zinc-400'}
                   `}>
-                    {shortLabels[new Date(fullDate.split(' de ')[0] + ' ' + fullDate.split(' de ')[1] + ' ' + new Date().getFullYear()).getDay() || 0]}
+                    {shortLabel}
                   </span>
                 </div>
 
@@ -215,7 +215,7 @@ export function WeekAvailability({ events }: { events?: EventItem[] }) {
                     </div>
                   ) : available ? (
                     <Button 
-                      className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 shadow-lg shadow-emerald-900/20"
+                      className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-10 md:h-12 shadow-lg shadow-emerald-900/20"
                       asChild
                     >
                       <a 

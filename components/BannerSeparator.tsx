@@ -13,7 +13,7 @@ export function BannerSeparator() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
 
   return (
-    <section ref={ref} className="relative h-[400px] overflow-hidden w-full flex items-center justify-center my-24 md:my-32">
+    <section ref={ref} className="relative h-[260px] sm:h-[320px] md:h-[400px] overflow-hidden w-full flex items-center justify-center my-14 sm:my-20 md:my-32">
       <motion.div 
         style={{ y }}
         className="absolute inset-0 z-0"
@@ -29,7 +29,7 @@ export function BannerSeparator() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-4xl md:text-6xl font-bold text-white uppercase tracking-tighter drop-shadow-lg"
+          className="text-2xl sm:text-3xl md:text-6xl font-bold text-white uppercase tracking-tighter drop-shadow-lg"
         >
           O Show não pode parar
         </motion.h2>
@@ -38,7 +38,7 @@ export function BannerSeparator() {
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2, duration: 0.8 }}
-          className="h-1 w-24 bg-primary mx-auto mt-4"
+          className="h-1 w-16 sm:w-20 md:w-24 bg-primary mx-auto mt-3 md:mt-4"
         />
       </div>
     </section>

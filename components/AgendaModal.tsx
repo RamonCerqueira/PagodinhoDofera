@@ -101,7 +101,7 @@ export function AgendaModal({ isOpen, onClose, events }: { isOpen: boolean; onCl
             {monthMatrix.flatMap((row, ri) =>
               row.map((cell, ci) => {
                 if (!cell) {
-                  return <div key={`${ri}-${ci}`} className="h-24 rounded-xl border border-zinc-900 bg-zinc-950" />;
+                  return <div key={`${ri}-${ci}`} className="h-20 sm:h-24 rounded-xl border border-zinc-900 bg-zinc-950" />;
                 }
                 const iso = toISO(cell);
                 const busy = isoSet.has(iso);
@@ -109,11 +109,11 @@ export function AgendaModal({ isOpen, onClose, events }: { isOpen: boolean; onCl
                   <button
                     key={iso}
                     onClick={() => openWhatsApp(cell)}
-                    className={`h-24 rounded-xl border flex flex-col items-center justify-center gap-1 transition-colors ${
+                    className={`h-20 sm:h-24 rounded-xl border flex flex-col items-center justify-center gap-1 transition-colors ${
                       busy ? 'border-rose-500/50 bg-rose-500/10 text-rose-300' : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'
                     }`}
                   >
-                    <span className="text-2xl font-bold">{cell.getDate()}</span>
+                    <span className="text-xl sm:text-2xl font-bold">{cell.getDate()}</span>
                     <span className="text-[10px] uppercase">{busy ? 'Reservado' : 'Disponível'}</span>
                   </button>
                 );

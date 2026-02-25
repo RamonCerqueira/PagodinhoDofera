@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { WHATSAPP_URL } from '@/lib/constants';
-import { Moon, Sun, User } from 'lucide-react';
+import { MessageCircle, Moon, Sun, User } from 'lucide-react';
 import { Button } from './ui/button';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut, type User as FirebaseUser } from 'firebase/auth';
@@ -54,14 +54,14 @@ export function Navbar() {
           : 'bg-transparent py-4'
       }`}
     >
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 md:px-6">
         <Link href="#top" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <Image 
             src="/images/logo.jpg" 
             alt="Pagodinho do Fera" 
             width={120} 
             height={52} 
-            className="h-12 w-auto" 
+            className="h-10 w-auto md:h-12" 
             priority 
           />
         </Link>
@@ -83,7 +83,7 @@ export function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center gap-4 relative">
+        <div className="flex items-center gap-2 md:gap-4 relative">
           <div className="relative">
             <Button 
               asChild
@@ -127,13 +127,27 @@ export function Navbar() {
             {dark ? <Sun className="h-5 w-5 text-yellow-400" /> : <Moon className="h-5 w-5 text-slate-700" />}
           </Button>
           
-          <MusicPlayer inline />
+          <div className="hidden md:flex">
+            <MusicPlayer inline />
+          </div>
           
           <Button 
             asChild 
-            className="rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-none shadow-lg shadow-orange-500/20 font-bold px-6"
+            className="hidden md:inline-flex rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white border-none shadow-lg shadow-orange-500/20 font-bold px-6"
           >
             <a href={WHATSAPP_URL}>Contratar Show</a>
+          </Button>
+
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="md:hidden rounded-full hover:bg-foreground/10"
+            aria-label="Contratar no WhatsApp"
+          >
+            <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
+              <MessageCircle className="h-5 w-5 text-emerald-500" />
+            </a>
           </Button>
         </div>
       </nav>
